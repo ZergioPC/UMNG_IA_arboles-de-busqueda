@@ -1,12 +1,15 @@
 import tkinter as tk
 
+from game.logica import Tablero
+
 class Ventana:
-    def __init__(self, root):
+    def __init__(self, root, tablero:Tablero):
         self.root = root
         self.root.title("Busqueda de Arboles - Pacman IA")
         
+        self.tablero = tablero
+        self.tamano_tablero = tablero.size
         self.tamano_celda = 80
-        self.tamano_tablero = 5
         self.tablero_ancho = self.tamano_celda * self.tamano_tablero
         self.tablero_alto = self.tamano_celda * self.tamano_tablero
         
@@ -33,6 +36,7 @@ class Ventana:
         self.dibujar_tablero()
     
     def dibujar_tablero(self):
+        self.canvas.delete("all")
         for fila in range(self.tamano_tablero):
             for col in range(self.tamano_tablero):
                 x1 = col * self.tamano_celda
@@ -47,10 +51,11 @@ class Ventana:
                     width=2
                 )
     
-    def dibujar_ruta(self, ruta):
-        for pos in ruta:
-            x = (pos[1] - 1) * self.tamano_celda + self.tamano_celda // 2
-            y = (pos[0] - 1) * self.tamano_celda + self.tamano_celda // 2
+    def dibujar_ruta(self):
+        for pos in self.ruta:
+            x = (pos[1]) * self.tamano_celda + self.tamano_celda // 2
+            y = (self.tamano_tablero - 1 - pos[0]) * self.tamano_celda + self.tamano_celda // 2
+            # Y es de esta forma porque en computacion grafica +Y es hacia abajo
             
             self.canvas.create_oval(
                 x - 10, y - 10, x + 10, y + 10,
@@ -62,8 +67,9 @@ class Ventana:
         if self.pacman_id:
             self.canvas.delete(self.pacman_id)
         
-        x = (pos[1] - 1) * self.tamano_celda + self.tamano_celda // 2
-        y = (pos[0] - 1) * self.tamano_celda + self.tamano_celda // 2
+        x = (pos[1]) * self.tamano_celda + self.tamano_celda // 2
+        y = (self.tamano_tablero - 1 - pos[0]) * self.tamano_celda + self.tamano_celda // 2
+        # Y es de esta forma porque en computacion grafica +Y es hacia abajo
         
         self.pacman_id = self.canvas.create_oval(
             x - 25, y - 25, x + 25, y + 25,
@@ -71,18 +77,16 @@ class Ventana:
             outline="black"
         )
     
-    def calcular_y_animar(self):
-        from game.logica import Tablero
-        
-        tablero = Tablero(tamano=5)
+    def calcular_y_animar(self):        
         print("Buscando ruta...")
-        ruta = tablero.obtener_ruta()
+        ruta = self.tablero.obtener_ruta()
         
         if ruta:
             print(f"Ruta encontrada: {ruta}")
             self.ruta = ruta
             self.paso_actual = 0
-            self.dibujar_ruta(ruta)
+            self.dibujar_tablero()
+            self.dibujar_ruta()
             self.animar_pacman()
         else:
             print("No se encontró ruta")

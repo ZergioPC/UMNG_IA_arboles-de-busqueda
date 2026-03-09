@@ -1,16 +1,4 @@
-"""
-from ai.aipacman import AIPacman
-
-class Tablero:
-    def __init__(self, tamano=5):
-        self.tamano = tamano
-        self.inicio = (5, 1)
-        self.meta = (1, 5)
-        self.ai = AIPacman(tablero=None, tamano=tamano)
-    
-    def obtener_ruta(self):
-        return self.ai.buscar_ruta(self.inicio, self.meta)
-"""
+from typing import Callable
 
 from ai.commons import Nodo, Problema
 
@@ -24,7 +12,7 @@ class Tablero:
         size:int, 
         inicio:tuple[int,int],
         meta:tuple[int,int],
-        ia:function
+        ia:Callable[[Problema, list[list[Nodo]]],list[tuple[int,int]]]
     ):
         self.ia = ia
         self.size = size
@@ -52,33 +40,17 @@ class Tablero:
             for fila in range(self.size)
         ]
 
-        # Paso 2: asignar vecinos a cada nodo
+        # Paso 2: asignar vecinos [arriba, derecha, abajo, izquierda]
         for fila in range(self.size):
             for col in range(self.size):
                 nodo = grilla[fila][col]
-                nodo.vecinos.vecino_up    = grilla[fila-1][col] if fila > 0           else None
-                nodo.vecinos.vecino_down  = grilla[fila+1][col] if fila < self.size-1 else None
-                nodo.vecinos.vecino_left  = grilla[fila][col-1] if col > 0            else None
-                nodo.vecinos.vecino_right = grilla[fila][col+1] if col < self.size-1  else None
+                if (fila > 0): nodo.vecinos.append(grilla[fila-1][col]) # arriba
+                if (col < self.size-1 ): nodo.vecinos.append(grilla[fila][col+1]) # derecha
+                if (fila < self.size-1): nodo.vecinos.append(grilla[fila+1][col]) # abajo
+                if (col > 0): nodo.vecinos.append(grilla[fila][col-1]) # izquierda
+
 
         return grilla
-
-    def _get_nodo(self, pos: tuple[int, int]) -> Nodo | None:
-        """
-        Retorna el nodo en la posición dada.
-        
-        Args:
-            pos (tuple( int, int)) : Posicion del Nodo
-
-        Returns:
-            Nodo : Nodo esperado
-        """
-        fila, col = pos
-
-        if (fila >= len(self.tablero) or col >= len(self.tablero[fila])):
-            raise IndexError("Error: Nodo no encontrado")
-
-        return self.tablero[fila][col]
     
-    def obtener_ruta(self):
-        self.ia(self.problema, self.tablero)
+    def obtener_ruta(self) -> list[tuple[int,int]]:
+        return self.ia(self.problema, self.tablero)
