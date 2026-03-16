@@ -12,9 +12,7 @@ class Tablero:
         size:int, 
         inicio:tuple[int,int],
         meta:tuple[int,int],
-        ia:Callable[[Problema, list[list[Nodo]]],list[tuple[int,int]]]
     ):
-        self.ia = ia
         self.size = size
         self.problema = Problema(inicio, meta)
         self.tablero = self._crear_tablero()
@@ -52,5 +50,9 @@ class Tablero:
 
         return grilla
     
-    def obtener_ruta(self) -> list[tuple[int,int]]:
-        return self.ia(self.problema, self.tablero)
+    def obtener_ruta(
+        self,
+        ia:Callable[[Problema, list[list[Nodo]]],list[tuple[int,int]]],
+        callable:Callable[[list[Nodo]],Nodo] | None = None,
+    ) -> list[tuple[int,int]]:
+        return ia(self.problema, self.tablero, callable)

@@ -1,5 +1,6 @@
 import tkinter as tk
 
+from ai.commons import Nodo
 from game.logica import Tablero
 
 class Ventana:
@@ -21,13 +22,29 @@ class Ventana:
         )
         self.canvas.pack(pady=10)
         
-        self.btn_calcular = tk.Button(
+        self.btn_calcular_general = tk.Button(
             root, 
-            text="Calcular Ruta", 
+            text="Algoritmo General", 
             font=("Arial", 12),
-            command=self.calcular_y_animar
+            command=self.calcular_general
         )
-        self.btn_calcular.pack(pady=10)
+        self.btn_calcular_general.pack(pady=10)
+
+        self.btn_calcular_bfs = tk.Button(
+            root, 
+            text="Algoritmo BFS", 
+            font=("Arial", 12),
+            command=self.calcular_primero_amplitud
+        )
+        self.btn_calcular_bfs.pack(pady=10)
+
+        self.btn_calcular_dfs = tk.Button(
+            root, 
+            text="Algoritmo DFS", 
+            font=("Arial", 12),
+            command=self.calcular_profundidad_primero
+        )
+        self.btn_calcular_dfs.pack(pady=10)
         
         self.ruta = []
         self.paso_actual = 0
@@ -76,20 +93,47 @@ class Ventana:
             fill="yellow",
             outline="black"
         )
+
+    # Calcular ruta segun algoritms
     
-    def calcular_y_animar(self):        
-        print("Buscando ruta...")
-        ruta = self.tablero.obtener_ruta()
+    def calcular_general(self):
+        import random
+        from ai.busquedas import general
         
-        if ruta:
-            print(f"Ruta encontrada: {ruta}")
-            self.ruta = ruta
+        # Estrategia Hardcodeada :v
+        def estrategia(frontera:list[Nodo])-> Nodo:
+            return random.choice(frontera[-2:])
+
+        print("Buscando ruta...")
+        ruta = self.tablero.obtener_ruta(general, estrategia)
+        self.ruta = ruta
+        self.animar()
+
+    def calcular_primero_amplitud(self):
+        from ai.busquedas import primero_en_amplitud
+        print("Buscando ruta...")
+        ruta = self.tablero.obtener_ruta(primero_en_amplitud)
+        self.ruta = ruta
+        self.animar()
+
+    def calcular_profundidad_primero(self):
+        from ai.busquedas import profundidad_primero
+        print("Buscando ruta...")
+        ruta = self.tablero.obtener_ruta(profundidad_primero)
+        self.ruta = ruta
+        self.animar()
+
+    # Animaciones
+
+    def animar(self):        
+        if self.ruta:
+            print(f"Ruta encontrada: {self.ruta}")
             self.paso_actual = 0
             self.dibujar_tablero()
             self.dibujar_ruta()
             self.animar_pacman()
         else:
-            print("No se encontró ruta")
+            print("No se encontró ruta antes de los 100 pasos")
     
     def animar_pacman(self):
         if self.paso_actual < len(self.ruta):
