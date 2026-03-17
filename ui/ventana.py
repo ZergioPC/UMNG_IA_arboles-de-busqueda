@@ -104,21 +104,21 @@ class Ventana:
         def estrategia(frontera:list[Nodo])-> Nodo:
             return random.choice(frontera[-2:])
 
-        print("Buscando ruta...")
+        
         ruta = self.tablero.obtener_ruta(general, estrategia)
         self.ruta = ruta
         self.animar()
 
     def calcular_primero_amplitud(self):
         from ai.busquedas import primero_en_amplitud
-        print("Buscando ruta...")
+        
         ruta = self.tablero.obtener_ruta(primero_en_amplitud)
         self.ruta = ruta
         self.animar()
 
     def calcular_profundidad_primero(self):
         from ai.busquedas import profundidad_primero
-        print("Buscando ruta...")
+        
         ruta = self.tablero.obtener_ruta(profundidad_primero)
         self.ruta = ruta
         self.animar()

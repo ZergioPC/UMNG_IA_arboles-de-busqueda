@@ -161,15 +161,14 @@ def primero_en_amplitud(
 def profundidad_primero(
     problema:Problema, 
     tablero:list[list[Nodo]],
-    f:Callable[[list[Nodo]],Nodo],
+    _:Callable[[list[Nodo]],Nodo],
 ) -> list[tuple[int,int]]:
     """
-    Algoritmo centrado en obtener un nodo de la frontera
-    segun la funcion de evaluacion
+    Algoritmo de busqueda que utiliza la estructura de datos LIFO (Last In
+    First Out) para seleccionar la frontera a expandir.
 
     Args:
         problema (Problema) : El problema de busqueda.
-        f (Callable) : Funcion de evaluacion
         tablero (list) : tablero de nodos.
 
     Returns:
@@ -178,28 +177,28 @@ def profundidad_primero(
     """
     inicio = _aux_get_nodo(problema.inicio, tablero)
     meta = _aux_get_nodo(problema.meta, tablero)
-
+    
     if (inicio.pos == meta.pos):
         return [inicio.pos]
     
-    alcanzados = []
+    visitados = [inicio.id]
     ruta:dict[int,Nodo | None] = {inicio.id: None}
-
+    
     isMetaEncontrada = False
 
     frontera = [inicio]
     while frontera and not isMetaEncontrada:
-        nodo_actual = f(frontera)
+        nodo_actual = frontera.pop(-1)
         
-        if (nodo_actual.pos == meta.pos):
+        if nodo_actual.pos == meta.pos:                
             isMetaEncontrada = True
+            break
 
-        #expandir
-        # Expandir
+        #expansion
         for vecino in nodo_actual.vecinos:
-            if vecino and vecino.id not in alcanzados:
-                alcanzados.add(vecino.id)
-                ruta[vecino.id] = nodo_actual
+            if vecino.id not in visitados:
+                visitados.append(vecino.id)
+                ruta[vecino.id] = nodo_actual           
                 frontera.append(vecino)
-    
+
     return _aux_reconstruir_ruta(ruta, meta)

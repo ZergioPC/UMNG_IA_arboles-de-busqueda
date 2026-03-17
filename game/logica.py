@@ -55,4 +55,15 @@ class Tablero:
         ia:Callable[[Problema, list[list[Nodo]]],list[tuple[int,int]]],
         callable:Callable[[list[Nodo]],Nodo] | None = None,
     ) -> list[tuple[int,int]]:
+        """
+        Funcion que utiliza la la ia junto al tablero y al problema para
+        calcular la ruta
+
+        Args:
+            ia (Callable): Funcion de busqueda
+            callable (Callable | None): Estrategia de expansión sí es requerida
+
+        Returns:
+            (list): Lista de posiciones que conforman la ruta 
+        """
         return ia(self.problema, self.tablero, callable)
