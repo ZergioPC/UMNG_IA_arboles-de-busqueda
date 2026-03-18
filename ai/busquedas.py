@@ -2,6 +2,30 @@ from typing import Callable
 
 from ai.commons import Nodo, Problema
 
+def _aux_calcular_profundidad(
+    ruta: dict[int, Nodo | None],
+    meta: Nodo
+) -> int:
+    """
+    Calcula la profundidad de la ruta reconstruida desde la meta.
+
+    Args:
+        ruta (dict[int, Nodo | None]): Diccionario que mapea el ID de un nodo con su nodo padre.
+        meta (Nodo): El nodo objetivo desde el cual se inicia el conteo.
+
+    Returns:
+        int: La cantidad de niveles (profundidad) que existen desde la raíz 
+            hasta el nodo meta. Si el nodo meta es la raíz, retorna 0.
+    """
+    profundidad = 0
+    nodo_actual = meta
+
+    while ruta.get(nodo_actual.id) is not None:
+        nodo_actual = ruta[nodo_actual.id]
+        profundidad += 1
+
+    return profundidad
+
 def _aux_get_nodo(pos: tuple[int, int],  tablero:list[list[Nodo]]) -> Nodo:
     """
     Retorna el nodo en la posición dada.
@@ -50,11 +74,11 @@ def _aux_reconstruir_ruta(
     """
     ruta = []
     nodo_actual = meta
-    aux_counter = 0
+    expansion_counter = 0
 
     # Mientras el ID del nodo esté en el diccionario
-    while nodo_actual is not None and aux_counter < 200:
-        aux_counter += 1
+    while nodo_actual is not None and expansion_counter < 200:
+        expansion_counter += 1
         ruta.append(nodo_actual.pos)
         
         # Buscamos al padre. Si no tiene padre (es el inicio), devolverá None
@@ -86,7 +110,8 @@ def general(
     Returns:
         list[tuple[int,int]] : Ruta a seguir para llegar a la meta.
     """
-    aux_counter = 0
+    expansion_counter = 0
+    nodos_visitados_counter = 0
 
     inicio = _aux_get_nodo(problema.inicio, tablero)
     meta = _aux_get_nodo(problema.meta, tablero)
@@ -98,8 +123,8 @@ def general(
     frontera = [inicio]
     isMetaEncontrada = False
     
-    while frontera and not isMetaEncontrada and aux_counter < 100:
-        aux_counter += 1
+    while frontera and not isMetaEncontrada and expansion_counter < 100:
+        expansion_counter += 1
         
         nodo_actual = estrategia(frontera)
         frontera.remove(nodo_actual)
@@ -110,8 +135,12 @@ def general(
         
         #expansion
         for vecino in nodo_actual.vecinos:
+            nodos_visitados_counter += 1
             frontera.append(vecino)
 
+    print(f"Numero de expansiones: {expansion_counter}")
+    print(f"Numero de nodos visitados: {nodos_visitados_counter}")
+    print(f"Profundidad: {expansion_counter}")
     return _aux_reconstruir_simple(ruta)
 
 def primero_en_amplitud(
@@ -130,6 +159,9 @@ def primero_en_amplitud(
     Returns:
         list[tuple[int,int]] : Ruta a seguir para llegar a la meta.
     """
+    expansion_counter = 0
+    nodos_visitados_counter = 0
+
     inicio = _aux_get_nodo(problema.inicio, tablero)
     meta = _aux_get_nodo(problema.meta, tablero)
     
@@ -143,6 +175,7 @@ def primero_en_amplitud(
 
     frontera = [inicio]
     while frontera and not isMetaEncontrada:
+        expansion_counter += 1
         nodo_actual = frontera.pop(0)
         
         if nodo_actual.pos == meta.pos:                
@@ -152,10 +185,14 @@ def primero_en_amplitud(
         #expansion
         for vecino in nodo_actual.vecinos:
             if vecino.id not in visitados:
+                nodos_visitados_counter += 1
                 visitados.append(vecino.id)
                 ruta[vecino.id] = nodo_actual           
                 frontera.append(vecino)
 
+    print(f"Numero de expansiones: {expansion_counter}")
+    print(f"Numero de nodos visitados: {nodos_visitados_counter}")
+    print(f"Profundidad alcanzada: {_aux_calcular_profundidad(ruta, meta)}")
     return _aux_reconstruir_ruta(ruta, meta)
 
 def profundidad_primero(
@@ -175,6 +212,9 @@ def profundidad_primero(
         list[tuple[int,int]] : Ruta a seguir para llegar a la meta.
 
     """
+    expansion_counter = 0
+    nodos_visitados_counter = 0
+
     inicio = _aux_get_nodo(problema.inicio, tablero)
     meta = _aux_get_nodo(problema.meta, tablero)
     
@@ -188,6 +228,7 @@ def profundidad_primero(
 
     frontera = [inicio]
     while frontera and not isMetaEncontrada:
+        expansion_counter += 1
         nodo_actual = frontera.pop(-1)
         
         if nodo_actual.pos == meta.pos:                
@@ -197,8 +238,12 @@ def profundidad_primero(
         #expansion
         for vecino in nodo_actual.vecinos:
             if vecino.id not in visitados:
+                nodos_visitados_counter += 1
                 visitados.append(vecino.id)
                 ruta[vecino.id] = nodo_actual           
                 frontera.append(vecino)
 
+    print(f"Numero de expansiones: {expansion_counter}")
+    print(f"Numero de nodos visitados: {nodos_visitados_counter}")
+    print(f"Profundidad alcanzada: {_aux_calcular_profundidad(ruta, meta)}")
     return _aux_reconstruir_ruta(ruta, meta)

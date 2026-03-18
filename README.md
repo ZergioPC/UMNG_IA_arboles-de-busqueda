@@ -53,3 +53,30 @@ Ante esto se plantea el uso de las siguientes clases:
 * Problema `[coordenada_inicial, coordenada_final]`
 * Nodo `[posicion, costo, vecinos]`
 * Vecinos `[vecino_up, vecino_right, vecino_down, vecino_left]`
+
+---
+
+```mermaid
+---
+title: Imaginatio DB
+config: {
+  "theme": "base"
+}
+---
+flowchart TD
+    root["Taller. Búsquedas No Informadas"]
+
+    root --> main["main.py"]
+    root --> readme["README.md"]
+
+    root --> ai["ai/"]
+    ai --> aipacman["aipacman.py"]
+    ai --> busquedas["busquedas.py"]
+    ai --> commons["commons.py"]
+
+    root --> game["game/"]
+    game --> logica["logica.py"]
+
+    root --> ui["ui/"]
+    ui --> ventana["ventana.py"]
+```
