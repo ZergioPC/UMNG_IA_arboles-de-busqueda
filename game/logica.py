@@ -1,11 +1,69 @@
-from ai.aipacman import AIPacman
+from typing import Callable
+
+from ai.commons import Nodo, Problema
 
 class Tablero:
-    def __init__(self, tamano=5):
-        self.tamano = tamano
-        self.inicio = (5, 1)
-        self.meta = (1, 5)
-        self.ai = AIPacman(tablero=None, tamano=tamano)
+    """
+    Es quien controla la logica del juego
+    """
+
+    def __init__(
+        self, 
+        size:int, 
+        inicio:tuple[int,int],
+        meta:tuple[int,int],
+    ):
+        self.size = size
+        self.problema = Problema(inicio, meta)
+        self.tablero = self._crear_tablero()
+
+    def _crear_tablero(self) -> list[list[Nodo]]:
+        """
+        Crea la grilla de nodos con sus vecinos asignados.
+
+        Returns:
+            list[list[Nodo]]: grilla size x size de nodos conectados.
+        """
+        # Paso 1: crear todos los nodos sin vecinos aún
+        grilla = [
+            [
+                Nodo(
+                    id=(fila * self.size) + col, 
+                    pos=(fila, col), 
+                    costo=1
+                )
+                for col 
+                in range(self.size)
+            ]
+            for fila in range(self.size)
+        ]
+
+        # Paso 2: asignar vecinos [arriba, derecha, abajo, izquierda]
+        for fila in range(self.size):
+            for col in range(self.size):
+                nodo = grilla[fila][col]
+                if (fila > 0): nodo.vecinos.append(grilla[fila-1][col]) # arriba
+                if (col < self.size-1 ): nodo.vecinos.append(grilla[fila][col+1]) # derecha
+                if (fila < self.size-1): nodo.vecinos.append(grilla[fila+1][col]) # abajo
+                if (col > 0): nodo.vecinos.append(grilla[fila][col-1]) # izquierda
+
+
+        return grilla
     
-    def obtener_ruta(self):
-        return self.ai.buscar_ruta(self.inicio, self.meta)
+    def obtener_ruta(
+        self,
+        ia:Callable[[Problema, list[list[Nodo]]],list[tuple[int,int]]],
+        callable:Callable[[list[Nodo]],Nodo] | None = None,
+    ) -> list[tuple[int,int]]:
+        """
+        Funcion que utiliza la la ia junto al tablero y al problema para
+        calcular la ruta
+
+        Args:
+            ia (Callable): Funcion de busqueda
+            callable (Callable | None): Estrategia de expansión sí es requerida
+
+        Returns:
+            (list): Lista de posiciones que conforman la ruta 
+        """
+        return ia(self.problema, self.tablero, callable)
